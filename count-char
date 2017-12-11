@@ -1,0 +1,52 @@
+// 字符统计.cpp: 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+#include <ctype.h>
+
+
+int alphbet[26] = { 0 };                      //0------a
+int total_letter = 0;
+
+void main(char *argv[])
+{
+	int ch;                                 //从文件中读取的字符存在这
+	FILE  *filep;                           //文件类型指针
+
+	filep = fopen(argv[1], "r");
+	if (filep == NULL)                      //检查文件打开是否正常
+	{
+		printf("文件可能不存在，打开错误\n");
+		return;
+	}
+
+
+	//制表
+	while ((ch = fgetc(filep)) != EOF)
+	{
+		ch = tolower(ch);                   //转换成小写
+		if (((ch - 97) <= 25) && ((ch - 97) >= 0))
+		{
+			++alphbet[ch - 97];             //在对应位置+1
+			++total_letter;
+		}
+
+	}
+
+	int max;
+	//制图
+	for (int i = 0; i <= 25; ++i)
+	{
+		max = (100 * alphbet[i] / total_letter);             //统计占比
+		printf("%c 的频率为 %d %\n", (i + 97), max);
+		for (int j = 1; j <= max; ++j)
+		{
+			printf("|");
+		}
+		puts("");
+	}
+
+	fclose(filep);
+	return 0;
+}
+
