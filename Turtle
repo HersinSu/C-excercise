@@ -1,0 +1,230 @@
+```c
+// 海龟图.cpp: 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#define TURN_LEFT 7
+#define TURN_RIGHT 8
+#define WEST1 2
+#define WEST2 -2
+#define EAST 0
+#define NORTH1 1
+#define NORTH2 -3
+#define SOUTH1 3
+#define SOUTH2 -1
+#define MAX 100
+
+int map[101][101] = { (0,0) };
+int command[30] = {0};//一次性最多30个指令，<0 直接终止
+
+int pen = 0;
+int direction = 0;
+int turtle_x = 0;  //x 坐标
+int turtle_y = 0;   //y 坐标
+int now;   //读取下一个
+
+
+
+//会用上的函数
+int Turtle_Go();
+int Print_Map();//打印地图
+
+
+int main()
+{
+	//本程序提示
+	printf("这是一只可爱的小海龟,你可以操控他画图\n");
+	printf("输入指令序列：1代表笔朝下画出线，0代表笔朝上只是行走不画线\n");
+	printf("左转7，右转8，前进5（空格后跟上一个数字），6打印整个地图\n");
+	printf("输入一个负数以结束指令，但不可跟在5命令后面\n");
+	printf("最高可支持60条指令（不含结束符号），地图为101 X 101大小");
+	printf("海龟在起点（0，0）, 朝向右边···\n");
+	printf("玩的愉快，Good Luck");
+
+
+	//生成指令序列
+	for (int tmp = 0; tmp <= 60; ++tmp)
+	{
+		scanf_s("%d", &command[tmp], 1);
+		if (command[tmp] < 0) 
+		{
+			break;
+		}
+	}
+
+
+	int current_command = 0;
+	while (current_command >= 0) {
+		//读取当前指令
+		current_command = command[now];
+
+		//指令判断
+		switch (current_command)
+		{
+		case(1):
+			pen = 1;
+			break;
+
+		case(0):
+			pen = 0;
+			break;
+
+		case(TURN_LEFT):
+			++direction;    //direction 代表方向的量，除四取余取绝对值，余数为0,1,2,3.前进量分别为+j,-i，-j,+i(记得判断是否超出格子)
+			break;
+
+		case(TURN_RIGHT):
+			--direction;
+			break;
+
+		case (5):
+			//foward = command[now+1]
+			Turtle_Go();
+			++now; //5代表前进，直接读取下一位，最后要跳过已经读取的 前进量
+			break;
+
+		case(6):
+			//打印指令
+			Print_Map();
+			break;
+
+		default:
+			printf("FBI warning\n");
+			break;
+		}
+
+		//switch后下一个
+		++now;  
+	}
+	return 0;
+}
+
+
+
+//海龟行动函数
+int Turtle_Go()
+{
+	int foward = command[now + 1];
+	int local = (direction % 4);
+	int current_x;
+	int current_y;
+	int i, j;  //for 循环
+
+	switch (local)
+	{
+	case(EAST):
+
+		current_x = turtle_x + foward;   //计算下一个位置
+		if (current_x > MAX)
+		{
+			current_x = MAX;        //如果超过了就"撞墙"（以界限为终点）
+		}
+
+		for (j = turtle_x; j <= current_x; ++j)
+		{
+			if (1 == pen)           //判断笔是否划线
+			{
+				map[turtle_y][j] = 1;         // 1---》“—”     2-----》 “|”     0----->  "#"
+			}
+		}
+		turtle_x = current_x; //对函数外操作,使得海龟位置为计算出的位置
+		break;
+
+
+	case(NORTH1):
+	case(NORTH2):
+
+		current_y = turtle_y - foward;
+		if (current_y < 0)
+		{
+			current_y = 0;
+		}
+
+		for (i = turtle_y; i >= current_y; --i)     //--i .....似乎会有点危险？
+		{
+			if (1 == pen)
+			{
+				map[i][turtle_x] = 2;
+			}
+		}
+		turtle_y = current_y;
+		break;
+
+
+	case(WEST1):
+	case(WEST2):
+
+		current_x = turtle_x - foward;
+		if (current_x < 0)
+		{
+			current_x = 0;
+		}
+
+		for (j = turtle_x; j >= current_x; --j)
+		{
+			if (1 == pen)
+			{
+				map[turtle_y][j] = 1;
+			}
+		}
+		turtle_x = current_x;
+		break;
+
+
+	case(SOUTH1):
+	case(SOUTH2):
+
+		current_y = turtle_y + foward;
+		if (current_y > MAX)
+		{
+			current_y = MAX;
+		}
+
+		for (i = turtle_y; i <= current_y; ++i)
+		{
+			if (1 == pen)
+			{
+				map[i][turtle_x] = 2;
+			}
+		}
+		turtle_y = current_y;
+		break;
+
+	default:
+		printf("FBI Warning\n");
+		break;
+
+	}
+
+	return 0;
+}
+
+//打印地图函数
+int Print_Map()
+{
+	for (int i = 0; i <= MAX; ++i)
+	{
+		for (int j = 0; j <= MAX; ++j)
+		{
+			if (0 == map[i][j])
+			{
+				printf("#");
+			}
+			else
+			{
+				if (1 == map[i][j])
+				{
+					printf("-");
+				}
+				else
+				{
+					printf("|");
+				}
+			}
+		}
+		puts("");
+	}
+	return 0;
+}
+```
